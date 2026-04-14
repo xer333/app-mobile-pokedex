@@ -2,7 +2,7 @@ export const typeTranslations: Record<string, string> = {
   normal: 'Normal',
   fire: 'Feu',
   water: 'Eau',
-  electric: 'Électrik',
+  electric: '\u00c9lectrik',
   grass: 'Plante',
   ice: 'Glace',
   fighting: 'Combat',
@@ -14,18 +14,18 @@ export const typeTranslations: Record<string, string> = {
   rock: 'Roche',
   ghost: 'Spectre',
   dragon: 'Dragon',
-  dark: 'Ténèbres',
+  dark: 'T\u00e9n\u00e8bres',
   steel: 'Acier',
-  fairy: 'Fée',
+  fairy: 'F\u00e9e',
 };
 
 export const habitatTranslations: Record<string, string> = {
   cave: 'Grotte',
-  forest: 'Forêt',
+  forest: 'For\u00eat',
   grassland: 'Prairie',
   mountain: 'Montagne',
   rare: 'Rare',
-  'rough-terrain': 'Terrain accidenté',
+  'rough-terrain': 'Terrain accident\u00e9',
   sea: 'Mer',
   urban: 'Ville',
   'waters-edge': "Bord de l'eau",
@@ -34,15 +34,15 @@ export const habitatTranslations: Record<string, string> = {
 export const statTranslations: Record<string, string> = {
   hp: 'PV',
   attack: 'Attaque',
-  defense: 'Défense',
-  'special-attack': 'Att. Spé.',
-  'special-defense': 'Déf. Spé.',
+  defense: 'D\u00e9fense',
+  'special-attack': 'Att. Sp\u00e9.',
+  'special-defense': 'D\u00e9f. Sp\u00e9.',
   speed: 'Vitesse',
 };
 
 export const categoryTranslations: Record<string, string> = {
   physical: 'Physique',
-  special: 'Spéciale',
+  special: 'Sp\u00e9ciale',
   status: 'Statut',
 };
 
@@ -51,39 +51,40 @@ export const growthRateTranslations: Record<string, string> = {
   medium: 'Moyenne',
   fast: 'Rapide',
   'medium-slow': 'Moyenne-lente',
-  'slow-then-very-fast': 'Lente puis très rapide',
-  'fast-then-very-slow': 'Rapide puis très lente',
+  'slow-then-very-fast': 'Lente puis tr\u00e8s rapide',
+  'fast-then-very-slow': 'Rapide puis tr\u00e8s lente',
   fluctuating: 'Variable',
 };
 
 export const eggGroupTranslations: Record<string, string> = {
   monster: 'Monstrueux',
   water1: 'Aquatique 1',
-  bug: 'Insectoïde',
-  flying: 'Aérien',
+  bug: 'Insecto\u00efde',
+  flying: 'A\u00e9rien',
   field: 'Terrestre',
-  fairy: 'Féerique',
-  grass: 'Végétal',
-  human-like: 'Humanoïde',
+  fairy: 'F\u00e9erique',
+  grass: 'V\u00e9g\u00e9tal',
+  'human-like': 'Humano\u00efde',
   water3: 'Aquatique 3',
-  mineral: 'Minéral',
+  mineral: 'Min\u00e9ral',
   amorphous: 'Amorphe',
   water2: 'Aquatique 2',
-  ditto: 'Métamorph',
+  ditto: 'M\u00e9tamorph',
   dragon: 'Draconique',
   'no-eggs': 'Inconnu',
+  plant: 'V\u00e9g\u00e9tal',
 };
 
 export const generationTranslations: Record<string, string> = {
-  'generation-i': 'Génération I',
-  'generation-ii': 'Génération II',
-  'generation-iii': 'Génération III',
-  'generation-iv': 'Génération IV',
-  'generation-v': 'Génération V',
-  'generation-vi': 'Génération VI',
-  'generation-vii': 'Génération VII',
-  'generation-viii': 'Génération VIII',
-  'generation-ix': 'Génération IX',
+  'generation-i': 'G\u00e9n\u00e9ration I',
+  'generation-ii': 'G\u00e9n\u00e9ration II',
+  'generation-iii': 'G\u00e9n\u00e9ration III',
+  'generation-iv': 'G\u00e9n\u00e9ration IV',
+  'generation-v': 'G\u00e9n\u00e9ration V',
+  'generation-vi': 'G\u00e9n\u00e9ration VI',
+  'generation-vii': 'G\u00e9n\u00e9ration VII',
+  'generation-viii': 'G\u00e9n\u00e9ration VIII',
+  'generation-ix': 'G\u00e9n\u00e9ration IX',
 };
 
 export const regionTranslations: Record<string, string> = {
@@ -167,7 +168,7 @@ export function formatGenderRate(genderRate: number) {
 
   const femalePercentage = Math.round((genderRate / 8) * 100);
   const malePercentage = 100 - femalePercentage;
-  return `${femalePercentage}% ♀ • ${malePercentage}% ♂`;
+  return `${femalePercentage}% \u2640 \u2022 ${malePercentage}% \u2642`;
 }
 
 export function prettifySlug(value: string) {

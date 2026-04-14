@@ -30,7 +30,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingTop: 18,
-    paddingBottom: 38,
+    paddingBottom: 20,
   },
   heroGlow: {
     position: 'absolute',
@@ -47,7 +47,7 @@ export const styles = StyleSheet.create({
   },
   heroMeta: {
     position: 'absolute',
-    bottom: 10,
+    bottom: 0,
     alignItems: 'center',
     gap: 10,
   },
@@ -73,7 +73,7 @@ export const styles = StyleSheet.create({
     fontWeight: '700',
   },
   sheet: {
-    minHeight: 408,
+    minHeight: 468,
     paddingHorizontal: 28,
     paddingTop: 10,
     paddingBottom: 138,
@@ -88,6 +88,31 @@ export const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: '#5b5b5b',
     marginBottom: 22,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    marginBottom: 18,
+  },
+  actionButton: {
+    flexGrow: 1,
+    minWidth: '47%',
+    borderRadius: 999,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.06)',
+  },
+  actionButtonActive: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+  },
+  actionButtonText: {
+    color: '#ffffff',
+    fontSize: 13,
+    fontWeight: '700',
+    textAlign: 'center',
   },
   tabsRow: {
     flexDirection: 'row',
@@ -139,13 +164,29 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
   },
+  flagRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  flagChip: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 999,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+  },
+  flagChipText: {
+    color: '#ffffff',
+    fontSize: 13,
+    fontWeight: '700',
+  },
   infoCard: {
     borderRadius: 22,
     padding: 18,
     backgroundColor: 'rgba(255,255,255,0.05)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.04)',
-    gap: 8,
+    gap: 10,
   },
   infoCardTitle: {
     color: '#ffffff',
@@ -179,6 +220,30 @@ export const styles = StyleSheet.create({
   infoCellValue: {
     color: '#ffffff',
     fontSize: 17,
+    fontWeight: '700',
+  },
+  matchupGroup: {
+    gap: 8,
+  },
+  matchupGroupTitle: {
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  matchupWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  matchupChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 999,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+  },
+  matchupChipText: {
+    color: '#ffffff',
+    fontSize: 12,
     fontWeight: '700',
   },
   statsList: {
@@ -260,6 +325,52 @@ export const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '700',
   },
+  variantList: {
+    gap: 10,
+  },
+  variantCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 6,
+  },
+  variantImage: {
+    width: 72,
+    height: 72,
+    resizeMode: 'contain',
+  },
+  variantTextWrap: {
+    flex: 1,
+    gap: 4,
+  },
+  variantName: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  variantMeta: {
+    color: '#b5b5b5',
+    fontSize: 13,
+  },
+  encounterList: {
+    gap: 10,
+  },
+  encounterCard: {
+    borderRadius: 18,
+    padding: 14,
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    gap: 5,
+  },
+  encounterLocation: {
+    color: '#ffffff',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  encounterVersions: {
+    color: '#b7b7b7',
+    fontSize: 13,
+    lineHeight: 20,
+  },
   evolutionList: {
     gap: 12,
   },
@@ -281,6 +392,25 @@ export const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     flex: 1,
+  },
+  evolutionStepsList: {
+    gap: 10,
+  },
+  evolutionStepCard: {
+    borderRadius: 18,
+    padding: 14,
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    gap: 6,
+  },
+  evolutionStepTitle: {
+    color: '#ffffff',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  evolutionStepText: {
+    color: '#bcbcbc',
+    fontSize: 14,
+    lineHeight: 21,
   },
   loadingWrap: {
     paddingHorizontal: 28,

@@ -2,6 +2,7 @@ import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { useCollections } from './collections';
 import type { PokemonCatalogItem } from './catalog';
 import {
   LiveBattleCard,
@@ -98,13 +99,33 @@ export function DiscoverPokemonTile({
   pokemon: PokemonCatalogItem;
   onPress: () => void;
 }) {
+  const { isFavorite, isInTeam } = useCollections();
+  const favorite = isFavorite(pokemon.slug);
+  const inTeam = isInTeam(pokemon.slug);
+
   return (
     <Pressable onPress={onPress} style={styles.discoverCard}>
       <LinearGradient colors={getCardColors(pokemon.color)} style={styles.discoverCardGradient}>
+        <View style={styles.discoverBadgeStack}>
+          {favorite ? (
+            <View style={styles.discoverStatusBadge}>
+              <Ionicons name="heart" size={12} color="#ffffff" />
+            </View>
+          ) : null}
+          {inTeam ? (
+            <View style={styles.discoverStatusBadge}>
+              <Text style={styles.discoverStatusBadgeText}>6v6</Text>
+            </View>
+          ) : null}
+        </View>
+
         <Image source={{ uri: pokemon.image }} style={styles.discoverPokemonImage} />
 
         <View style={styles.discoverCardFooter}>
-          <Text style={styles.discoverCardName}>{pokemon.nameFr}</Text>
+          <View style={styles.discoverTextWrap}>
+            <Text style={styles.discoverCardName}>{pokemon.nameFr}</Text>
+            <Text style={styles.discoverCardMeta}>{pokemon.generationLabelFr}</Text>
+          </View>
 
           <View style={styles.discoverArrowButton}>
             <Ionicons name="arrow-forward" size={18} color="#ffffff" />
@@ -116,9 +137,11 @@ export function DiscoverPokemonTile({
 }
 
 export function BottomDock({
+  onMapPress,
   onHomePress,
   onDiscoverPress,
 }: {
+  onMapPress: () => void;
   onHomePress: () => void;
   onDiscoverPress: () => void;
 }) {
@@ -130,9 +153,9 @@ export function BottomDock({
         end={{ x: 1, y: 1 }}
         style={styles.dock}
       >
-        <Pressable onPress={onHomePress} style={styles.dockAction}>
-          <Ionicons name="notifications-outline" size={22} color="#c3c3c3" />
-          <Text style={styles.dockLabelMuted}>Alertes</Text>
+        <Pressable onPress={onMapPress} style={styles.dockAction}>
+          <Ionicons name="map-outline" size={22} color="#c3c3c3" />
+          <Text style={styles.dockLabelMuted}>Carte</Text>
         </Pressable>
 
         <Pressable onPress={onDiscoverPress} style={styles.dockAction}>
@@ -359,6 +382,29 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     padding: 16,
   },
+  discoverBadgeStack: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    gap: 8,
+    zIndex: 2,
+  },
+  discoverStatusBadge: {
+    minWidth: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 10,
+    backgroundColor: 'rgba(12,12,12,0.4)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+  },
+  discoverStatusBadgeText: {
+    color: '#ffffff',
+    fontSize: 10,
+    fontWeight: '800',
+  },
   discoverPokemonImage: {
     position: 'absolute',
     width: 176,
@@ -373,11 +419,19 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 10,
   },
+  discoverTextWrap: {
+    flex: 1,
+    gap: 2,
+  },
   discoverCardName: {
     color: '#ffffff',
     fontSize: 16,
     fontWeight: '700',
-    flex: 1,
+  },
+  discoverCardMeta: {
+    color: 'rgba(255,255,255,0.72)',
+    fontSize: 12,
+    fontWeight: '600',
   },
   discoverArrowButton: {
     width: 30,

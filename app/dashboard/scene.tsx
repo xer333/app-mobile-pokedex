@@ -5,7 +5,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { liveBattleCards, shortcutCards, upcomingBattleCards } from '../_shared/data';
-import { appRoutes, detailRoute } from '../_shared/routes';
+import { appRoutes, detailRoute, mapRoute } from '../_shared/routes';
 import { BattleTile, BottomDock, ShortcutTile, UpcomingTile } from '../_shared/ui';
 import { styles } from './styles';
 
@@ -40,7 +40,9 @@ export function DashboardScene() {
             <ShortcutTile
               key={card.title}
               card={card}
-              onPress={() => router.push(appRoutes.discover)}
+              onPress={() =>
+                router.push(card.icon === 'locations' ? mapRoute() : appRoutes.discover)
+              }
             />
           ))}
         </View>
@@ -77,6 +79,7 @@ export function DashboardScene() {
       </ScrollView>
 
       <BottomDock
+        onMapPress={() => router.replace(appRoutes.map)}
         onHomePress={() => router.replace(appRoutes.dashboard)}
         onDiscoverPress={() => router.replace(appRoutes.discover)}
       />
