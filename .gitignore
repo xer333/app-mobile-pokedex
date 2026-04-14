@@ -1,0 +1,4 @@
+node_modules
+.expo
+expo-start.err.log
+expo-start.out.log
