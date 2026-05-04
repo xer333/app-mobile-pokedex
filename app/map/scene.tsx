@@ -22,6 +22,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AccountAvatarButton } from '../_shared/account-ui';
 import {
   featuredPokemonSlugs,
   getCatalogPokemonBySlug,
@@ -219,12 +220,11 @@ export function MapScene() {
             <Feather name="menu" size={24} color="#ffffff" />
           </Pressable>
 
-          <Pressable
-            onPress={() => router.push(detailRoute(selectedPokemon.slug))}
-            style={styles.avatarCircle}
-          >
-            <Text style={styles.avatarText}>Dex</Text>
-          </Pressable>
+          <AccountAvatarButton
+            onPress={() => router.push(appRoutes.profile)}
+            size={40}
+            textSize={16}
+          />
         </View>
 
         <View>
@@ -260,6 +260,13 @@ export function MapScene() {
               </View>
             ))}
           </View>
+
+          <Pressable
+            onPress={() => router.push(detailRoute(selectedPokemon.slug))}
+            style={styles.heroCta}
+          >
+            <Text style={styles.heroCtaText}>Voir la fiche complete</Text>
+          </Pressable>
         </LinearGradient>
 
         <View style={styles.sectionBlock}>
@@ -423,6 +430,7 @@ export function MapScene() {
       </ScrollView>
 
       <BottomDock
+        activeTab="map"
         onMapPress={() => router.replace(mapRoute(selectedPokemon.slug, selectedRegion === 'all' ? undefined : selectedRegion))}
         onHomePress={() => router.replace(appRoutes.dashboard)}
         onDiscoverPress={() => router.replace(appRoutes.discover)}

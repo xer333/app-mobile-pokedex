@@ -137,14 +137,20 @@ export function DiscoverPokemonTile({
 }
 
 export function BottomDock({
+  activeTab = 'none',
   onMapPress,
   onHomePress,
   onDiscoverPress,
 }: {
+  activeTab?: 'map' | 'home' | 'discover' | 'none';
   onMapPress: () => void;
   onHomePress: () => void;
   onDiscoverPress: () => void;
 }) {
+  const isMapActive = activeTab === 'map';
+  const isHomeActive = activeTab === 'home';
+  const isDiscoverActive = activeTab === 'discover';
+
   return (
     <View style={styles.dockOuter}>
       <LinearGradient
@@ -154,19 +160,46 @@ export function BottomDock({
         style={styles.dock}
       >
         <Pressable onPress={onMapPress} style={styles.dockAction}>
-          <Ionicons name="map-outline" size={22} color="#c3c3c3" />
-          <Text style={styles.dockLabelMuted}>Carte</Text>
+          <Ionicons
+            name={isMapActive ? 'map' : 'map-outline'}
+            size={24}
+            color={isMapActive ? '#ffffff' : '#9f9f9f'}
+          />
+          <Text style={[styles.dockLabel, isMapActive ? styles.dockLabelActive : styles.dockLabelMuted]}>
+            Carte
+          </Text>
         </Pressable>
 
+        <View style={styles.dockCenterSpacer} />
+
         <Pressable onPress={onDiscoverPress} style={styles.dockAction}>
-          <Ionicons name="search-outline" size={22} color="#c3c3c3" />
-          <Text style={styles.dockLabelMuted}>Explorer</Text>
+          <Ionicons
+            name={isDiscoverActive ? 'search' : 'search-outline'}
+            size={24}
+            color={isDiscoverActive ? '#ffffff' : '#9f9f9f'}
+          />
+          <Text
+            style={[
+              styles.dockLabel,
+              isDiscoverActive ? styles.dockLabelActive : styles.dockLabelMuted,
+            ]}
+          >
+            Explorer
+          </Text>
         </Pressable>
       </LinearGradient>
 
       <Pressable onPress={onHomePress} style={styles.centerDockButton}>
+        <View style={[styles.centerDockHalo, isHomeActive && styles.centerDockHaloActive]} />
         <Pokeball size={88} />
-        <Text style={styles.centerDockLabel}>Accueil</Text>
+        <Text
+          style={[
+            styles.centerDockLabel,
+            !isHomeActive && styles.centerDockLabelMuted,
+          ]}
+        >
+          Accueil
+        </Text>
       </Pressable>
     </View>
   );
@@ -453,31 +486,57 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 82,
     borderRadius: 34,
-    paddingHorizontal: 28,
+    paddingHorizontal: 18,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.06)',
   },
   dockAction: {
-    width: 92,
+    flex: 1,
     alignItems: 'center',
     gap: 7,
   },
+  dockCenterSpacer: {
+    width: 108,
+  },
+  dockLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  dockLabelActive: {
+    color: '#ffffff',
+  },
   dockLabelMuted: {
     color: '#a4a4a4',
-    fontSize: 11,
   },
   centerDockButton: {
     position: 'absolute',
     top: -36,
     alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 112,
+  },
+  centerDockHalo: {
+    position: 'absolute',
+    top: 6,
+    width: 102,
+    height: 102,
+    borderRadius: 51,
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    transform: [{ scale: 0.92 }],
+  },
+  centerDockHaloActive: {
+    backgroundColor: 'rgba(255,255,255,0.08)',
   },
   centerDockLabel: {
     color: '#ffffff',
-    fontSize: 12,
-    marginTop: 2,
+    fontSize: 13,
+    fontWeight: '800',
+    marginTop: 4,
+  },
+  centerDockLabelMuted: {
+    color: '#c2c2c2',
   },
   pokeball: {
     overflow: 'hidden',

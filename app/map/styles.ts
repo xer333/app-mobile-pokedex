@@ -136,6 +136,21 @@ export const styles = StyleSheet.create({
     gap: 10,
     marginTop: 18,
   },
+  heroCta: {
+    alignSelf: 'flex-start',
+    marginTop: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 11,
+    borderRadius: 999,
+    backgroundColor: 'rgba(12,12,12,0.22)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+  },
+  heroCtaText: {
+    color: '#ffffff',
+    fontSize: 13,
+    fontWeight: '700',
+  },
   summaryPill: {
     paddingHorizontal: 14,
     paddingVertical: 8,

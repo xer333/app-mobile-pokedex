@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "app-mobile",
-    "slug": "app-mobile",
+    "slug": "pokedex",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
@@ -13,7 +13,23 @@
       "**/*"
     ],
     "plugins": [
-      "expo-router"
-    ]
+      "expo-router",
+      "expo-font"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "83e11ac8-1c10-4d95-86de-8db9773dc34b"
+      }
+    },
+    "owner": "xeriase",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/83e11ac8-1c10-4d95-86de-8db9773dc34b"
+    },
+    "android": {},
+    "ios": {}
   }
 }

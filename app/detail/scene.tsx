@@ -199,6 +199,7 @@ export function DetailScene() {
         )}
 
         <BottomDock
+          activeTab="none"
           onMapPress={() => router.replace(mapRoute(pokemon.slug))}
           onHomePress={() => router.replace(appRoutes.dashboard)}
           onDiscoverPress={() => router.replace(appRoutes.discover)}

@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AccountAvatarButton } from '../_shared/account-ui';
 import {
   pokemonCatalog,
   pokemonCatalogCount,
@@ -112,9 +113,7 @@ export function DiscoverScene() {
                 <Feather name="menu" size={28} color="#ffffff" />
               </Pressable>
 
-              <View style={styles.avatarCircle}>
-                <Text style={styles.avatarText}>S</Text>
-              </View>
+              <AccountAvatarButton onPress={() => router.push(appRoutes.profile)} />
             </View>
 
             <Text style={styles.title}>Pokédex complet</Text>
@@ -235,6 +234,7 @@ export function DiscoverScene() {
       />
 
       <BottomDock
+        activeTab="discover"
         onMapPress={() => router.replace(appRoutes.map)}
         onHomePress={() => router.replace(appRoutes.dashboard)}
         onDiscoverPress={() => router.replace(appRoutes.discover)}

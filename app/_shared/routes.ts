@@ -2,6 +2,7 @@ export const appRoutes = {
   dashboard: '/dashboard' as const,
   discover: '/discover' as const,
   map: '/map' as const,
+  profile: '/profile' as const,
 };
 
 export function detailRoute(slug: string) {

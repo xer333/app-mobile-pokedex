@@ -4,6 +4,8 @@ import { Feather } from '@expo/vector-icons';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useAccount } from '../_shared/account';
+import { AccountAvatarButton } from '../_shared/account-ui';
 import { liveBattleCards, shortcutCards, upcomingBattleCards } from '../_shared/data';
 import { appRoutes, detailRoute, mapRoute } from '../_shared/routes';
 import { BattleTile, BottomDock, ShortcutTile, UpcomingTile } from '../_shared/ui';
@@ -11,6 +13,7 @@ import { styles } from './styles';
 
 export function DashboardScene() {
   const router = useRouter();
+  const { displayName } = useAccount();
 
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
@@ -25,13 +28,11 @@ export function DashboardScene() {
             <Feather name="menu" size={28} color="#ffffff" />
           </Pressable>
 
-          <View style={styles.avatarCircle}>
-            <Text style={styles.avatarText}>S</Text>
-          </View>
+          <AccountAvatarButton onPress={() => router.push(appRoutes.profile)} />
         </View>
 
         <Text style={styles.greeting}>
-          <Text style={styles.greetingMuted}>Salut !</Text> Stanly
+          <Text style={styles.greetingMuted}>Salut !</Text> {displayName}
         </Text>
         <Text style={styles.subheading}>Bon retour dans ton Pok\u00e9dex</Text>
 
@@ -79,6 +80,7 @@ export function DashboardScene() {
       </ScrollView>
 
       <BottomDock
+        activeTab="home"
         onMapPress={() => router.replace(appRoutes.map)}
         onHomePress={() => router.replace(appRoutes.dashboard)}
         onDiscoverPress={() => router.replace(appRoutes.discover)}
