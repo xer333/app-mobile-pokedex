@@ -2,6 +2,9 @@ export const appRoutes = {
   dashboard: '/dashboard' as const,
   discover: '/discover' as const,
   map: '/map' as const,
+  locations: '/locations' as const,
+  moves: '/moves' as const,
+  evolutions: '/evolutions' as const,
   profile: '/profile' as const,
 };
 

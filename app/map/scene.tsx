@@ -10,19 +10,22 @@ import {
   type ReactNode,
 } from 'react';
 import {
-  ActivityIndicator,
+  FlatList,
+  Image,
   Linking,
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
-  Image,
 } from 'react-native';
+import Animated, { FadeInUp, LinearTransition } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AccountAvatarButton } from '../_shared/account-ui';
+import { useActivity } from '../_shared/activity';
 import {
   featuredPokemonSlugs,
   getCatalogPokemonBySlug,
@@ -30,7 +33,9 @@ import {
   pokemonCatalog,
 } from '../_shared/catalog';
 import type { PokemonAtlasData, PokemonAtlasLocation } from '../_shared/pokeapi';
+import { QuickMenuSheet } from '../_shared/quick-menu';
 import { appRoutes, detailRoute, mapRoute } from '../_shared/routes';
+import { SkeletonBlock, SkeletonCard } from '../_shared/skeleton';
 import { BottomDock } from '../_shared/ui';
 import { getRegionMapAsset } from './mapAssets';
 import { atlasRegionOrder, getMarkerPositions, getRegionVisual, orderRegionKeys } from './regions';
@@ -42,6 +47,8 @@ const atlasGridColumns = ['16%', '36%', '56%', '76%'] as const;
 
 export function MapScene() {
   const router = useRouter();
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const params = useLocalSearchParams<{ pokemon?: string; region?: string }>();
   const [selectedPokemonSlug, setSelectedPokemonSlug] = useState(() =>
     resolvePokemonSlug(params.pokemon),
@@ -51,6 +58,7 @@ export function MapScene() {
   const [searchValue, setSearchValue] = useState('');
   const deferredSearchValue = useDeferredValue(searchValue);
   const selectedPokemon = getCatalogPokemonBySlug(selectedPokemonSlug);
+  const { recordActivity } = useActivity();
   const gradientColors = useMemo(
     () => getDetailColors(selectedPokemon.color),
     [selectedPokemon.color],
@@ -64,6 +72,12 @@ export function MapScene() {
   useEffect(() => {
     setSelectedRegion(resolveRegionKey(params.region));
   }, [params.region]);
+
+  useEffect(() => {
+    if (!isLoading && refreshing) {
+      setRefreshing(false);
+    }
+  }, [isLoading, refreshing]);
 
   useEffect(() => {
     if (!data) {
@@ -84,6 +98,14 @@ export function MapScene() {
       setSelectedVersion('all');
     }
   }, [data, selectedVersion]);
+
+  useEffect(() => {
+    recordActivity({
+      route: mapRoute(selectedPokemon.slug, selectedRegion === 'all' ? undefined : selectedRegion),
+      label: `Carte de ${selectedPokemon.nameFr}`,
+      pokemonSlug: selectedPokemon.slug,
+    });
+  }, [recordActivity, selectedPokemon.nameFr, selectedPokemon.slug, selectedRegion]);
 
   const suggestions = useMemo(() => {
     const normalized = deferredSearchValue.trim().toLowerCase();
@@ -188,8 +210,6 @@ export function MapScene() {
       setSelectedVersion('all');
       setSearchValue('');
     });
-
-    router.replace(mapRoute(slug));
   };
 
   const handleSelectRegion = (regionKey: string) => {
@@ -197,8 +217,6 @@ export function MapScene() {
       setSelectedRegion(regionKey);
       setSelectedVersion('all');
     });
-
-    router.replace(mapRoute(selectedPokemon.slug, regionKey === 'all' ? undefined : regionKey));
   };
 
   const handleSelectVersion = (version: string) => {
@@ -211,229 +229,250 @@ export function MapScene() {
     <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
       <AtlasBackdrop />
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
-          <Pressable
-            onPress={() => router.replace(appRoutes.dashboard)}
-            style={styles.headerButton}
-          >
-            <Feather name="menu" size={24} color="#ffffff" />
-          </Pressable>
-
-          <AccountAvatarButton
-            onPress={() => router.push(appRoutes.profile)}
-            size={40}
-            textSize={16}
+      <FlatList
+        data={filteredLocations}
+        keyExtractor={(item) => item.key}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => {
+              setRefreshing(true);
+              reload();
+            }}
+            tintColor="#ffffff"
+            progressBackgroundColor="#1f1f1f"
           />
-        </View>
-
-        <View>
-          <Text style={styles.title}>Atlas des rencontres</Text>
-          <Text style={styles.subtitle}>
-            Choisis un Pokemon et affiche les regions, versions et lieux ou il peut etre rencontre
-            dans les jeux Pokemon console quand PokéAPI les connait.
-          </Text>
-        </View>
-
-        <LinearGradient colors={gradientColors} style={styles.heroCard}>
-          <View style={styles.heroGlow} />
-
-          <View style={styles.heroRow}>
-            <View style={styles.heroImageShell}>
-              <Image source={{ uri: selectedPokemon.image }} style={styles.heroImage} />
-            </View>
-
-            <View style={styles.heroCopy}>
-              <Text style={styles.heroEyebrow}>Pokemon suivi</Text>
-              <Text style={styles.heroName}>{selectedPokemon.nameFr}</Text>
-              <Text style={styles.heroMeta}>
-                #{String(selectedPokemon.id).padStart(4, '0')} • {selectedPokemon.generationLabelFr}
-              </Text>
-              <Text style={styles.heroMeta}>{selectedPokemon.regionLabelsFr.join(' • ')}</Text>
-            </View>
-          </View>
-
-          <View style={styles.heroSummaryRow}>
-            {heroSummary.map((item) => (
-              <View key={item} style={styles.summaryPill}>
-                <Text style={styles.summaryPillText}>{item}</Text>
-              </View>
-            ))}
-          </View>
-
-          <Pressable
-            onPress={() => router.push(detailRoute(selectedPokemon.slug))}
-            style={styles.heroCta}
-          >
-            <Text style={styles.heroCtaText}>Voir la fiche complete</Text>
-          </Pressable>
-        </LinearGradient>
-
-        <View style={styles.sectionBlock}>
-          <Text style={styles.sectionTitle}>Choisir un Pokemon</Text>
-
-          <View style={styles.searchShell}>
-            <Feather name="search" size={22} color="#8d8d8d" />
-            <TextInput
-              value={searchValue}
-              onChangeText={setSearchValue}
-              placeholder="Rechercher un Pokemon"
-              placeholderTextColor="#777777"
-              style={styles.searchInput}
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-            {searchValue ? (
-              <Pressable onPress={() => setSearchValue('')}>
-                <Ionicons name="close-circle" size={20} color="#9e9e9e" />
+        }
+        initialNumToRender={8}
+        maxToRenderPerBatch={14}
+        windowSize={6}
+        ListHeaderComponent={
+          <View>
+            <View style={styles.header}>
+              <Pressable onPress={() => setMenuVisible(true)} style={styles.headerButton}>
+                <Feather name="menu" size={24} color="#ffffff" />
               </Pressable>
+
+              <AccountAvatarButton
+                onPress={() => router.push(appRoutes.profile)}
+                size={40}
+                textSize={16}
+              />
+            </View>
+
+            <View>
+              <Text style={styles.title}>Atlas des rencontres</Text>
+              <Text style={styles.subtitle}>
+                Choisis un Pokemon et affiche les regions, versions et lieux ou il peut etre rencontre
+                dans les jeux Pokemon console quand PokeAPI les connait.
+              </Text>
+            </View>
+
+            <LinearGradient colors={gradientColors} style={styles.heroCard}>
+              <View style={styles.heroGlow} />
+
+              <View style={styles.heroRow}>
+                <View style={styles.heroImageShell}>
+                  <Image source={{ uri: selectedPokemon.image }} style={styles.heroImage} />
+                </View>
+
+                <View style={styles.heroCopy}>
+                  <Text style={styles.heroEyebrow}>Pokemon suivi</Text>
+                  <Text style={styles.heroName}>{selectedPokemon.nameFr}</Text>
+                  <Text style={styles.heroMeta}>
+                    #{String(selectedPokemon.id).padStart(4, '0')} · {selectedPokemon.generationLabelFr}
+                  </Text>
+                  <Text style={styles.heroMeta}>{selectedPokemon.regionLabelsFr.join(' · ')}</Text>
+                </View>
+              </View>
+
+              <View style={styles.heroSummaryRow}>
+                {heroSummary.map((item) => (
+                  <View key={item} style={styles.summaryPill}>
+                    <Text style={styles.summaryPillText}>{item}</Text>
+                  </View>
+                ))}
+              </View>
+
+              <Pressable
+                onPress={() => router.push(detailRoute(selectedPokemon.slug))}
+                style={styles.heroCta}
+              >
+                <Text style={styles.heroCtaText}>Voir la fiche complete</Text>
+              </Pressable>
+            </LinearGradient>
+
+            <View style={styles.sectionBlock}>
+              <Text style={styles.sectionTitle}>Choisir un Pokemon</Text>
+
+              <View style={styles.searchShell}>
+                <Feather name="search" size={22} color="#8d8d8d" />
+                <TextInput
+                  value={searchValue}
+                  onChangeText={setSearchValue}
+                  placeholder="Rechercher un Pokemon"
+                  placeholderTextColor="#777777"
+                  style={styles.searchInput}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+                {searchValue ? (
+                  <Pressable onPress={() => setSearchValue('')}>
+                    <Ionicons name="close-circle" size={20} color="#9e9e9e" />
+                  </Pressable>
+                ) : null}
+              </View>
+
+              {suggestions.length > 0 ? (
+                <View style={styles.suggestionWrap}>
+                  {suggestions.map((pokemon) => (
+                    <SuggestionCard
+                      key={pokemon.slug}
+                      isSelected={pokemon.slug === selectedPokemon.slug}
+                      meta={pokemon.generationLabelFr}
+                      name={pokemon.nameFr}
+                      onPress={() => handleSelectPokemon(pokemon.slug)}
+                      image={pokemon.image}
+                    />
+                  ))}
+                </View>
+              ) : (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.chipRow}
+                >
+                  {featuredPokemonSlugs.map((slug) => {
+                    const pokemon = getCatalogPokemonBySlug(slug);
+                    return (
+                      <FilterChip
+                        key={pokemon.slug}
+                        active={pokemon.slug === selectedPokemon.slug}
+                        label={pokemon.nameFr}
+                        onPress={() => handleSelectPokemon(pokemon.slug)}
+                      />
+                    );
+                  })}
+                </ScrollView>
+              )}
+            </View>
+
+            <SectionBlock title="Regions">
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.chipRow}
+              >
+                <FilterChip
+                  active={selectedRegion === 'all'}
+                  label="Toutes"
+                  onPress={() => handleSelectRegion('all')}
+                />
+                {regionOptions.map((region) => (
+                  <FilterChip
+                    key={region.key}
+                    active={selectedRegion === region.key}
+                    label={`${region.label} (${region.count})`}
+                    onPress={() => handleSelectRegion(region.key)}
+                  />
+                ))}
+              </ScrollView>
+            </SectionBlock>
+
+            {data?.versions.length ? (
+              <SectionBlock title="Versions">
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.chipRow}
+                >
+                  <FilterChip
+                    active={selectedVersion === 'all'}
+                    label="Toutes"
+                    onPress={() => handleSelectVersion('all')}
+                  />
+                  {data.versions.map((version) => (
+                    <FilterChip
+                      key={version}
+                      active={selectedVersion === version}
+                      label={version}
+                      onPress={() => handleSelectVersion(version)}
+                    />
+                  ))}
+                </ScrollView>
+              </SectionBlock>
+            ) : null}
+
+            <View style={styles.infoCard}>
+              <Text style={styles.infoTitle}>Comment lire cette carte</Text>
+              <Text style={styles.infoText}>
+                Les lieux, versions et methodes viennent de PokeAPI. Les cartes visuelles viennent de
+                Bulbapedia / Bulbagarden Archives et sont integrees localement dans le projet pour te
+                donner un vrai rendu de region a la place du fond abstrait.
+              </Text>
+            </View>
+
+            {data?.encounterable && filteredLocations.length > 0 ? (
+              <>
+                <MapRegionCard
+                  atlas={data}
+                  focusedRegionKey={focusedRegionKey}
+                  focusedRegionLabel={focusedRegionLabel}
+                  locations={focusedRegionLocations}
+                  selectedRegion={selectedRegion}
+                />
+                <Text style={styles.sectionTitle}>{`Lieux confirmes (${filteredLocations.length})`}</Text>
+              </>
             ) : null}
           </View>
-
-          {suggestions.length > 0 ? (
-            <View style={styles.suggestionWrap}>
-              {suggestions.map((pokemon) => (
-                <SuggestionCard
-                  key={pokemon.slug}
-                  isSelected={pokemon.slug === selectedPokemon.slug}
-                  meta={pokemon.generationLabelFr}
-                  name={pokemon.nameFr}
-                  onPress={() => handleSelectPokemon(pokemon.slug)}
-                  image={pokemon.image}
-                />
-              ))}
+        }
+        renderItem={({ item, index }) => (
+          <Animated.View
+            entering={FadeInUp.delay(index * 16).duration(220)}
+            layout={LinearTransition.springify().damping(20).stiffness(170)}
+          >
+            <LocationCard location={item} />
+          </Animated.View>
+        )}
+        ListEmptyComponent={
+          isLoading && !data ? (
+            <AtlasSkeletonState />
+          ) : error && !data ? (
+            <ErrorState error={error} onRetry={reload} />
+          ) : data?.encounterable ? (
+            <View style={styles.emptyCard}>
+              <Text style={styles.emptyTitle}>Aucun spot sur ce filtre</Text>
+              <Text style={styles.emptyText}>
+                Aucun lieu ne correspond a la combinaison region/version actuelle. Retire un
+                filtre ou change de version pour retrouver des rencontres.
+              </Text>
             </View>
           ) : (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.chipRow}
-            >
-              {featuredPokemonSlugs.map((slug) => {
-                const pokemon = getCatalogPokemonBySlug(slug);
-                return (
-                  <FilterChip
-                    key={pokemon.slug}
-                    active={pokemon.slug === selectedPokemon.slug}
-                    label={pokemon.nameFr}
-                    onPress={() => handleSelectPokemon(pokemon.slug)}
-                  />
-                );
-              })}
-            </ScrollView>
-          )}
-        </View>
-
-        <SectionBlock title="Regions">
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.chipRow}
-          >
-            <FilterChip
-              active={selectedRegion === 'all'}
-              label="Toutes"
-              onPress={() => handleSelectRegion('all')}
-            />
-            {regionOptions.map((region) => (
-              <FilterChip
-                key={region.key}
-                active={selectedRegion === region.key}
-                label={`${region.label} (${region.count})`}
-                onPress={() => handleSelectRegion(region.key)}
-              />
-            ))}
-          </ScrollView>
-        </SectionBlock>
-
-        {data?.versions.length ? (
-          <SectionBlock title="Versions">
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.chipRow}
-            >
-              <FilterChip
-                active={selectedVersion === 'all'}
-                label="Toutes"
-                onPress={() => handleSelectVersion('all')}
-              />
-              {data.versions.map((version) => (
-                <FilterChip
-                  key={version}
-                  active={selectedVersion === version}
-                  label={version}
-                  onPress={() => handleSelectVersion(version)}
-                />
-              ))}
-            </ScrollView>
-          </SectionBlock>
-        ) : null}
-
-        <View style={styles.infoCard}>
-          <Text style={styles.infoTitle}>Comment lire cette carte</Text>
-          <Text style={styles.infoText}>
-            Les lieux, versions et methodes viennent de PokéAPI. Les cartes visuelles viennent de
-            Bulbapedia / Bulbagarden Archives et sont integrees localement dans le projet pour te
-            donner un vrai rendu de region a la place du fond abstrait.
-          </Text>
-        </View>
-
-        {isLoading && !data ? (
-          <LoadingState />
-        ) : error && !data ? (
-          <ErrorState error={error} onRetry={reload} />
-        ) : data ? (
-          <>
-            {data.encounterable ? (
-              <>
-                {filteredLocations.length > 0 ? (
-                  <>
-                    <MapRegionCard
-                      atlas={data}
-                      focusedRegionKey={focusedRegionKey}
-                      focusedRegionLabel={focusedRegionLabel}
-                      locations={focusedRegionLocations}
-                      selectedRegion={selectedRegion}
-                    />
-
-                    <SectionBlock title={`Lieux confirmes (${filteredLocations.length})`}>
-                      <View style={styles.locationList}>
-                        {filteredLocations.map((location) => (
-                          <LocationCard key={location.key} location={location} />
-                        ))}
-                      </View>
-                    </SectionBlock>
-                  </>
-                ) : (
-                  <View style={styles.emptyCard}>
-                    <Text style={styles.emptyTitle}>Aucun spot sur ce filtre</Text>
-                    <Text style={styles.emptyText}>
-                      Aucun lieu ne correspond a la combinaison region/version actuelle. Retire un
-                      filtre ou change de version pour retrouver des rencontres.
-                    </Text>
-                  </View>
-                )}
-              </>
-            ) : (
-              <View style={styles.emptyCard}>
-                <Text style={styles.emptyTitle}>Aucun lieu renseigne</Text>
-                <Text style={styles.emptyText}>
-                  PokéAPI ne reference pas encore de lieu de rencontre console pour ce Pokemon.
-                  Essaie avec Pikachu, Magicarpe, Roucool ou Nosferapti pour voir l&apos;atlas en
-                  action.
-                </Text>
-              </View>
-            )}
-          </>
-        ) : null}
-      </ScrollView>
+            <View style={styles.emptyCard}>
+              <Text style={styles.emptyTitle}>Aucun lieu renseigne</Text>
+              <Text style={styles.emptyText}>
+                PokeAPI ne reference pas encore de lieu de rencontre console pour ce Pokemon.
+                Essaie avec Pikachu, Magicarpe, Roucool ou Nosferapti pour voir l&apos;atlas en
+                action.
+              </Text>
+            </View>
+          )
+        }
+      />
 
       <BottomDock
         activeTab="map"
         onMapPress={() => router.replace(mapRoute(selectedPokemon.slug, selectedRegion === 'all' ? undefined : selectedRegion))}
         onHomePress={() => router.replace(appRoutes.dashboard)}
         onDiscoverPress={() => router.replace(appRoutes.discover)}
+      />
+
+      <QuickMenuSheet
+        visible={menuVisible}
+        currentSection="map"
+        onClose={() => setMenuVisible(false)}
       />
     </SafeAreaView>
   );
@@ -536,7 +575,7 @@ function MapRegionCard({
           <Text style={styles.mapTitle}>{focusedRegionLabel}</Text>
           <Text style={styles.mapSubtitle}>
             {selectedRegion === 'all'
-              ? "Vue principale de la region la plus presente pour ce filtre."
+              ? 'Vue principale de la region la plus presente pour ce filtre.'
               : 'Points de rencontre regroupes sur la region selectionnee.'}
           </Text>
         </View>
@@ -585,16 +624,14 @@ function MapRegionCard({
         {mapAsset ? (
           <View style={styles.mapSourceRow}>
             <Text style={styles.mapSourceText}>
-              {mapAsset.variantLabel} • Source visuelle: {mapAsset.sourceLabel}
+              {mapAsset.variantLabel} · Source visuelle: {mapAsset.sourceLabel}
             </Text>
             <Pressable onPress={() => Linking.openURL(mapAsset.sourceUrl)}>
               <Text style={styles.mapSourceLink}>Voir la source</Text>
             </Pressable>
           </View>
         ) : null}
-        {highlightedMethods.length ? (
-          <PillGroup title="Methodes" values={highlightedMethods} />
-        ) : null}
+        {highlightedMethods.length ? <PillGroup title="Methodes" values={highlightedMethods} /> : null}
         {highlightedVersions.length ? (
           <PillGroup title="Versions visibles" values={highlightedVersions} />
         ) : null}
@@ -641,7 +678,7 @@ function PillGroup({
 function LocationCard({ location }: { location: PokemonAtlasLocation }) {
   const subtitle =
     location.areaName !== location.locationName
-      ? `${location.areaName} • ${location.regionLabel}`
+      ? `${location.areaName} · ${location.regionLabel}`
       : location.regionLabel;
 
   return (
@@ -665,14 +702,26 @@ function LocationCard({ location }: { location: PokemonAtlasLocation }) {
   );
 }
 
-function LoadingState() {
+function AtlasSkeletonState() {
   return (
-    <View style={styles.loadingWrap}>
-      <ActivityIndicator size="large" color="#ffffff" />
-      <Text style={styles.loadingText}>Chargement de l&apos;atlas</Text>
-      <Text style={styles.loadingSubtext}>
-        On assemble les lieux, les versions, les methodes et les regions depuis PokéAPI.
-      </Text>
+    <View style={{ gap: 12 }}>
+      {Array.from({ length: 3 }).map((_, index) => (
+        <SkeletonCard key={`atlas-skeleton-${index}`} style={styles.locationCard}>
+          <View style={styles.locationHeader}>
+            <View style={[styles.locationCopy, { gap: 8 }]}>
+              <SkeletonBlock style={{ width: '58%', height: 20, borderRadius: 8 }} />
+              <SkeletonBlock style={{ width: '42%', height: 14, borderRadius: 7 }} />
+            </View>
+            <SkeletonBlock style={{ width: 76, height: 46, borderRadius: 20 }} />
+          </View>
+          <SkeletonBlock style={{ width: '48%', height: 14, borderRadius: 7 }} />
+          <View style={styles.pillWrap}>
+            <SkeletonBlock style={{ width: 88, height: 34, borderRadius: 999 }} />
+            <SkeletonBlock style={{ width: 112, height: 34, borderRadius: 999 }} />
+            <SkeletonBlock style={{ width: 96, height: 34, borderRadius: 999 }} />
+          </View>
+        </SkeletonCard>
+      ))}
     </View>
   );
 }

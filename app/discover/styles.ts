@@ -121,11 +121,22 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 18,
   },
+  gridCell: {
+    width: '47.5%',
+  },
   emptyState: {
     marginTop: 18,
     padding: 24,
     borderRadius: 24,
     backgroundColor: 'rgba(255,255,255,0.06)',
+  },
+  errorState: {
+    marginTop: 18,
+    padding: 24,
+    borderRadius: 24,
+    backgroundColor: 'rgba(158,52,52,0.18)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,118,118,0.32)',
   },
   emptyTitle: {
     color: '#ffffff',
@@ -138,11 +149,154 @@ export const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 22,
   },
+  retryButton: {
+    marginTop: 18,
+    alignSelf: 'flex-start',
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    borderRadius: 999,
+    backgroundColor: '#ffffff',
+  },
+  retryButtonText: {
+    color: '#111111',
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  statusBanner: {
+    marginBottom: 18,
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+  },
+  statusBannerError: {
+    backgroundColor: 'rgba(158,52,52,0.18)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,118,118,0.28)',
+  },
+  statusBannerText: {
+    color: '#d8d8d8',
+    fontSize: 14,
+    lineHeight: 20,
+  },
   backdropStripe: {
     position: 'absolute',
     top: 0,
     bottom: 0,
     width: 56,
     backgroundColor: 'rgba(255,255,255,0.035)',
+  },
+  skeletonIconButton: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+  },
+  skeletonAvatar: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+  },
+  skeletonTitleBlock: {
+    gap: 10,
+    marginBottom: 22,
+  },
+  skeletonTitleLineLarge: {
+    width: '72%',
+    height: 38,
+    borderRadius: 14,
+  },
+  skeletonTitleLineSmall: {
+    width: '92%',
+    height: 18,
+    borderRadius: 10,
+  },
+  skeletonSearchShell: {
+    height: 54,
+    borderRadius: 18,
+    backgroundColor: '#2a2a2a',
+    justifyContent: 'center',
+    paddingHorizontal: 18,
+    marginBottom: 22,
+  },
+  skeletonSearchLine: {
+    width: '52%',
+    height: 14,
+    borderRadius: 10,
+  },
+  skeletonFilterGroup: {
+    marginBottom: 16,
+  },
+  skeletonFilterTitle: {
+    width: 82,
+    height: 14,
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  skeletonFilterRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  skeletonChip: {
+    height: 36,
+    borderRadius: 999,
+  },
+  skeletonResultsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 6,
+    marginBottom: 18,
+  },
+  skeletonResultsTitle: {
+    width: 140,
+    height: 28,
+    borderRadius: 10,
+  },
+  skeletonResultsCount: {
+    width: 46,
+    height: 22,
+    borderRadius: 10,
+  },
+  skeletonCardShell: {
+    width: '47.5%',
+  },
+  skeletonCard: {
+    height: 214,
+    borderRadius: 28,
+    padding: 16,
+    backgroundColor: 'rgba(255,255,255,0.055)',
+    justifyContent: 'space-between',
+    overflow: 'hidden',
+  },
+  skeletonBadge: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignSelf: 'flex-end',
+  },
+  skeletonImage: {
+    width: '82%',
+    height: 108,
+    borderRadius: 24,
+  },
+  skeletonFooterRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  skeletonFooterText: {
+    width: '56%',
+    height: 18,
+    borderRadius: 10,
+  },
+  skeletonFooterMeta: {
+    width: '38%',
+    height: 13,
+    borderRadius: 8,
+    marginTop: 8,
+  },
+  skeletonArrow: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
   },
 });

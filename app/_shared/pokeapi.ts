@@ -182,6 +182,11 @@ type PokemonFormApiResponse = {
   form_names: LocalizedNameEntry[];
 };
 
+type PokemonSpeciesIndexResponse = {
+  count: number;
+  results: NamedResource[];
+};
+
 export type PokemonMoveSummary = {
   slug: string;
   name: string;
@@ -307,6 +312,7 @@ export type PokemonDetailData = {
 };
 
 const API_BASE = 'https://pokeapi.co/api/v2';
+const POKEMON_SPECIES_INDEX_LIMIT = 2000;
 const VERSION_PRIORITY = [
   'scarlet-violet',
   'sword-shield',
@@ -315,6 +321,7 @@ const VERSION_PRIORITY = [
   'ultra-sun-ultra-moon',
   'x-y',
 ];
+const MOVE_SUMMARY_LIMIT = 18;
 
 const detailCache = new Map<string, Promise<PokemonDetailData>>();
 const atlasCache = new Map<string, Promise<PokemonAtlasData>>();
@@ -325,6 +332,10 @@ const typeCache = new Map<string, Promise<TypeApiResponse>>();
 const evolutionCache = new Map<string, Promise<EvolutionChainResponse>>();
 const resourceNameCache = new Map<string, Promise<string>>();
 const pokemonResourceCache = new Map<string, Promise<PokemonApiResponse>>();
+const pokemonSpeciesIndexCache = new Map<string, Promise<{
+  count: number;
+  slugs: string[];
+}>>();
 const formLabelCache = new Map<string, Promise<string>>();
 const locationAreaCache = new Map<string, Promise<LocationAreaApiResponse>>();
 const locationCache = new Map<string, Promise<LocationApiResponse>>();
@@ -371,6 +382,31 @@ export async function fetchPokemonAtlas(slug: string): Promise<PokemonAtlasData>
   });
 
   atlasCache.set(slug, promise);
+  return promise;
+}
+
+export async function fetchPokemonSpeciesIndex() {
+  const cacheKey = 'default';
+  const cached = pokemonSpeciesIndexCache.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  const promise = (async () => {
+    const data = (await fetchJson(
+      `${API_BASE}/pokemon-species?limit=${POKEMON_SPECIES_INDEX_LIMIT}&offset=0`,
+    )) as PokemonSpeciesIndexResponse;
+
+    return {
+      count: data.count,
+      slugs: data.results.map((entry) => entry.name),
+    };
+  })().catch((error) => {
+    pokemonSpeciesIndexCache.delete(cacheKey);
+    throw error;
+  });
+
+  pokemonSpeciesIndexCache.set(cacheKey, promise);
   return promise;
 }
 
@@ -1050,14 +1086,14 @@ function selectRelevantMoves(pokemon: PokemonApiResponse) {
   });
 
   if (unique.size === 0) {
-    return pokemon.moves.slice(0, 8).map((entry, index) => ({
+    return pokemon.moves.slice(0, MOVE_SUMMARY_LIMIT).map((entry, index) => ({
       move: entry.move,
       rank: index,
       level: null,
     }));
   }
 
-  return Array.from(unique.values()).slice(0, 8);
+  return Array.from(unique.values()).slice(0, MOVE_SUMMARY_LIMIT);
 }
 
 function getFrenchName(entries: LocalizedNameEntry[], fallback: string) {

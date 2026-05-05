@@ -1,4 +1,11 @@
-export type AppScreen = 'dashboard' | 'discover' | 'detail';
+export type AppScreen =
+  | 'dashboard'
+  | 'discover'
+  | 'detail'
+  | 'moves'
+  | 'evolutions'
+  | 'map'
+  | 'locations';
 
 export type ShortcutCard = {
   title: string;
@@ -21,19 +28,19 @@ export type UpcomingBattleCard = {
 };
 
 export const shortcutCards: ShortcutCard[] = [
-  { title: 'Pok\u00e9dex', colors: ['#c60303', '#ff1307'], icon: 'pokedex', action: 'discover' },
-  { title: 'Attaques', colors: ['#c08a00', '#f0bb08'], icon: 'moves', action: 'discover' },
+  { title: 'Pokédex', colors: ['#c60303', '#ff1307'], icon: 'pokedex', action: 'discover' },
+  { title: 'Attaques', colors: ['#c08a00', '#f0bb08'], icon: 'moves', action: 'moves' },
   {
-    title: '\u00c9volutions',
+    title: 'Évolutions',
     colors: ['#0a7bb4', '#28c2ff'],
     icon: 'evolution',
-    action: 'discover',
+    action: 'evolutions',
   },
   {
     title: 'Lieux',
     colors: ['#119100', '#20dd18'],
     icon: 'locations',
-    action: 'discover',
+    action: 'locations',
   },
 ];
 
@@ -45,7 +52,7 @@ export const liveBattleCards: LiveBattleCard[] = [
     featured: ['pikachu', 'squirtle'],
   },
   {
-    title: 'Ar\u00e8ne spectre',
+    title: 'Arène spectre',
     viewing: '+ 64 spectateurs',
     colors: ['#5e1f93', '#18d34f'],
     featured: ['gengar'],
@@ -59,7 +66,7 @@ export const upcomingBattleCards: UpcomingBattleCard[] = [
     featured: ['bulbasaur', 'jigglypuff'],
   },
   {
-    title: 'Ru\u00e9e aquatique',
+    title: 'Ruée aquatique',
     colors: ['#87ebff', '#44c7f2'],
     featured: ['squirtle'],
   },

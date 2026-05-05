@@ -84,9 +84,13 @@ export const featuredPokemonSlugs = [
   'gengar',
 ];
 
-export function getCatalogPokemonBySlug(slug?: string | string[]) {
+export function findCatalogPokemonBySlug(slug?: string | string[]) {
   const normalized = Array.isArray(slug) ? slug[0] : slug;
-  return (normalized ? bySlug.get(normalized) : undefined) ?? catalog.items[0];
+  return normalized ? bySlug.get(normalized) : undefined;
+}
+
+export function getCatalogPokemonBySlug(slug?: string | string[]) {
+  return findCatalogPokemonBySlug(slug) ?? catalog.items[0];
 }
 
 export function getCardColors(color: string) {

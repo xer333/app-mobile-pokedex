@@ -1,0 +1,226 @@
+export type NamedPlaceKind = 'city' | 'village' | 'landmark';
+
+export type NamedPlaceMarker = {
+  label: string;
+  kind: NamedPlaceKind;
+  left: number;
+  top: number;
+};
+
+export type RegionLocationAtlas = {
+  key: string;
+  title: string;
+  gameLabel: string;
+  summary: string;
+  accent: [string, string];
+  places: NamedPlaceMarker[];
+};
+
+export const locationAtlasRegions: RegionLocationAtlas[] = [
+  {
+    key: 'kanto',
+    title: 'Kanto',
+    gameLabel: 'Rouge / Bleu / Jaune / Let\'s Go',
+    summary: 'Les villes iconiques de la toute premiere aventure Pokemon.',
+    accent: ['#ff9d78', '#ffd17b'],
+    places: [
+      { label: 'Plateau Indigo', kind: 'landmark', left: 6, top: 34 },
+      { label: 'Argenta', kind: 'city', left: 26, top: 42 },
+      { label: 'Jadielle', kind: 'city', left: 19, top: 66 },
+      { label: 'Bourg Palette', kind: 'village', left: 22, top: 82 },
+      { label: 'Azuria', kind: 'city', left: 60, top: 26 },
+      { label: 'Safrania', kind: 'city', left: 56, top: 48 },
+      { label: 'Celadopole', kind: 'city', left: 31, top: 49 },
+      { label: 'Carmin sur Mer', kind: 'city', left: 44, top: 64 },
+      { label: 'Lavanville', kind: 'city', left: 75, top: 48 },
+      { label: 'Parmanie', kind: 'city', left: 28, top: 71 },
+      { label: "Cramois'Ile", kind: 'city', left: 49, top: 90 },
+    ],
+  },
+  {
+    key: 'johto',
+    title: 'Johto',
+    gameLabel: 'Or / Argent / Cristal / Coeur d\'Or / Ame d\'Argent',
+    summary: 'Un reseau de villes compact, relie a Kanto par la Ligue Indigo.',
+    accent: ['#f9d48e', '#c8ef8d'],
+    places: [
+      { label: 'Bourg Geon', kind: 'village', left: 85, top: 79 },
+      { label: 'Ville Griotte', kind: 'village', left: 78, top: 67 },
+      { label: 'Mauville', kind: 'city', left: 68, top: 58 },
+      { label: 'Ecorcia', kind: 'city', left: 53, top: 55 },
+      { label: 'Doublonville', kind: 'city', left: 38, top: 59 },
+      { label: 'Rosalia', kind: 'city', left: 45, top: 45 },
+      { label: 'Oliville', kind: 'city', left: 20, top: 46 },
+      { label: 'Irisia', kind: 'city', left: 13, top: 63 },
+      { label: 'Acajou', kind: 'city', left: 72, top: 38 },
+      { label: 'Ebennelle', kind: 'city', left: 86, top: 34 },
+      { label: 'Lac Colere', kind: 'landmark', left: 71, top: 25 },
+    ],
+  },
+  {
+    key: 'hoenn',
+    title: 'Hoenn',
+    gameLabel: 'Rubis / Saphir / Emeraude / ROSA',
+    summary: 'Une region tres maritime, rythmee par ses ports et ses iles.',
+    accent: ['#77ddff', '#8cf5aa'],
+    places: [
+      { label: 'Merouville', kind: 'city', left: 18, top: 30 },
+      { label: 'Village Myokara', kind: 'village', left: 14, top: 58 },
+      { label: 'Lavandia', kind: 'city', left: 44, top: 39 },
+      { label: 'Vermilava', kind: 'city', left: 36, top: 24 },
+      { label: 'Poivressel', kind: 'city', left: 40, top: 60 },
+      { label: 'Nenucrique', kind: 'city', left: 70, top: 58 },
+      { label: 'Cimetronelle', kind: 'city', left: 63, top: 34 },
+      { label: 'Algatia', kind: 'city', left: 82, top: 42 },
+      { label: 'Atalanopolis', kind: 'city', left: 79, top: 61 },
+      { label: 'Ligue Pokemon', kind: 'landmark', left: 92, top: 77 },
+    ],
+  },
+  {
+    key: 'sinnoh',
+    title: 'Sinnoh',
+    gameLabel: 'Diamant / Perle / Platine / DEPS',
+    summary: 'Des villes denses, des lacs et le Mont Couronne comme axe central.',
+    accent: ['#b8d9ff', '#d6c9ff'],
+    places: [
+      { label: 'Bonaugure', kind: 'village', left: 13, top: 84 },
+      { label: 'Littorella', kind: 'village', left: 23, top: 78 },
+      { label: 'Feli-Cite', kind: 'city', left: 27, top: 62 },
+      { label: 'Charbourg', kind: 'city', left: 14, top: 66 },
+      { label: 'Floraville', kind: 'village', left: 34, top: 48 },
+      { label: 'Vestigion', kind: 'city', left: 23, top: 44 },
+      { label: 'Unionpolis', kind: 'city', left: 38, top: 66 },
+      { label: 'Voilaroc', kind: 'city', left: 68, top: 55 },
+      { label: 'Verchamps', kind: 'city', left: 59, top: 74 },
+      { label: 'Joliberges', kind: 'city', left: 7, top: 53 },
+      { label: 'Frimapic', kind: 'city', left: 34, top: 14 },
+      { label: 'Rivamar', kind: 'city', left: 87, top: 55 },
+      { label: 'Mont Couronne', kind: 'landmark', left: 50, top: 39 },
+    ],
+  },
+  {
+    key: 'unova',
+    title: 'Unys',
+    gameLabel: 'Noir / Blanc / Noir 2 / Blanc 2',
+    summary: 'Une region moderne avec un grand axe urbain autour de Volucite.',
+    accent: ['#8dd3ff', '#ffe08b'],
+    places: [
+      { label: 'Renouet', kind: 'village', left: 74, top: 85 },
+      { label: 'Arabelle', kind: 'village', left: 69, top: 70 },
+      { label: 'Ogoesse', kind: 'city', left: 55, top: 77 },
+      { label: 'Maillard', kind: 'city', left: 37, top: 66 },
+      { label: 'Volucite', kind: 'city', left: 24, top: 56 },
+      { label: 'Meanville', kind: 'city', left: 40, top: 48 },
+      { label: 'Port Yoneuve', kind: 'city', left: 56, top: 47 },
+      { label: 'Parsemille', kind: 'city', left: 73, top: 33 },
+      { label: 'Flocombe', kind: 'city', left: 36, top: 24 },
+      { label: 'Janusia', kind: 'city', left: 69, top: 19 },
+      { label: 'Vaguelone', kind: 'village', left: 89, top: 60 },
+      { label: 'Ligue Pokemon', kind: 'landmark', left: 91, top: 10 },
+    ],
+  },
+  {
+    key: 'kalos',
+    title: 'Kalos',
+    gameLabel: 'X / Y',
+    summary: 'Une grande carte en etoile avec Illumis comme coeur de la region.',
+    accent: ['#f8a7cf', '#b0e9ff'],
+    places: [
+      { label: 'Bourg Croquis', kind: 'village', left: 43, top: 89 },
+      { label: 'Quarellis', kind: 'village', left: 37, top: 80 },
+      { label: 'Neuvartault', kind: 'city', left: 32, top: 72 },
+      { label: 'Relifac-le-Haut', kind: 'city', left: 22, top: 60 },
+      { label: 'Yantreizh', kind: 'city', left: 20, top: 48 },
+      { label: 'Port Temperes', kind: 'city', left: 12, top: 38 },
+      { label: 'Illumis', kind: 'city', left: 51, top: 52 },
+      { label: "Cromlac'h", kind: 'village', left: 41, top: 42 },
+      { label: 'Romant-sous-Bois', kind: 'city', left: 67, top: 48 },
+      { label: 'Flusselles', kind: 'city', left: 78, top: 38 },
+      { label: 'Mozheim', kind: 'city', left: 81, top: 23 },
+      { label: 'Batisques', kind: 'city', left: 50, top: 12 },
+    ],
+  },
+  {
+    key: 'alola',
+    title: 'Alola',
+    gameLabel: 'Soleil / Lune / Ultra-Soleil / Ultra-Lune',
+    summary: 'Un archipel tropical avec des villes dispersees sur plusieurs iles.',
+    accent: ['#ffd48f', '#8cf8df'],
+    places: [
+      { label: 'Lilii', kind: 'village', left: 26, top: 18 },
+      { label: 'Ekaeka', kind: 'city', left: 20, top: 22 },
+      { label: "Ho'ohale", kind: 'city', left: 32, top: 46 },
+      { label: 'Konikoni', kind: 'city', left: 39, top: 54 },
+      { label: 'Malie', kind: 'city', left: 63, top: 33 },
+      { label: 'Village Toko', kind: 'village', left: 70, top: 48 },
+      { label: 'Kokohio', kind: 'city', left: 60, top: 54 },
+      { label: 'Village Flottant', kind: 'village', left: 79, top: 77 },
+      { label: 'Mont Lanakila', kind: 'landmark', left: 65, top: 63 },
+    ],
+  },
+  {
+    key: 'galar',
+    title: 'Galar',
+    gameLabel: 'Epee / Bouclier',
+    summary: 'Une progression du sud vers le nord, avec les Terres Sauvages au centre.',
+    accent: ['#d7f09e', '#9dc0ff'],
+    places: [
+      { label: 'Brasswick', kind: 'village', left: 49, top: 86 },
+      { label: 'Paddoxton', kind: 'village', left: 44, top: 76 },
+      { label: 'Greenbury', kind: 'city', left: 28, top: 65 },
+      { label: 'Skifford', kind: 'city', left: 13, top: 55 },
+      { label: 'Motorby', kind: 'city', left: 49, top: 54 },
+      { label: 'Terres Sauvages', kind: 'landmark', left: 36, top: 45 },
+      { label: 'Kickenham', kind: 'city', left: 58, top: 42 },
+      { label: 'Old Chister', kind: 'city', left: 39, top: 31 },
+      { label: 'Corrifey', kind: 'city', left: 50, top: 22 },
+      { label: 'Ludester', kind: 'city', left: 64, top: 18 },
+      { label: 'Smashings', kind: 'city', left: 75, top: 41 },
+      { label: 'Winscor', kind: 'landmark', left: 50, top: 6 },
+    ],
+  },
+  {
+    key: 'hisui',
+    title: 'Hisui',
+    gameLabel: 'Legendes Pokemon : Arceus',
+    summary: 'La version ancienne de Sinnoh, avec surtout des zones et lieux majeurs.',
+    accent: ['#a4cfa4', '#e8d2a0'],
+    places: [
+      { label: 'Rusti-Cite', kind: 'city', left: 47, top: 78 },
+      { label: 'Plaines Obsidiennes', kind: 'landmark', left: 30, top: 65 },
+      { label: 'Marais Carmin', kind: 'landmark', left: 68, top: 60 },
+      { label: 'Cote Lazuli', kind: 'landmark', left: 17, top: 45 },
+      { label: 'Contrefort Couronne', kind: 'landmark', left: 55, top: 43 },
+      { label: 'Terres Immaculees', kind: 'landmark', left: 72, top: 20 },
+      { label: 'Hameau Oublie', kind: 'village', left: 86, top: 18 },
+      { label: 'Temple de Sinnoh', kind: 'landmark', left: 55, top: 12 },
+    ],
+  },
+  {
+    key: 'paldea',
+    title: 'Paldea',
+    gameLabel: 'Ecarlate / Violet',
+    summary: 'Une region ouverte autour de Mesaledo et du cratere de la Zone Zero.',
+    accent: ['#ffcb82', '#ff97b7'],
+    places: [
+      { label: 'Plato Real', kind: 'village', left: 45, top: 88 },
+      { label: 'Cuchalaga', kind: 'village', left: 34, top: 80 },
+      { label: 'Mesaledo', kind: 'city', left: 48, top: 67 },
+      { label: 'Jarramanca', kind: 'city', left: 16, top: 67 },
+      { label: 'Cuencia', kind: 'city', left: 25, top: 55 },
+      { label: 'Porto Marinada', kind: 'village', left: 12, top: 61 },
+      { label: 'Alforneira', kind: 'city', left: 6, top: 84 },
+      { label: 'Sevaro', kind: 'city', left: 45, top: 43 },
+      { label: 'Levalendura', kind: 'city', left: 71, top: 67 },
+      { label: 'Mezclamora', kind: 'city', left: 68, top: 46 },
+      { label: 'Frigao', kind: 'city', left: 56, top: 22 },
+      { label: 'Mont Nappe', kind: 'landmark', left: 49, top: 10 },
+      { label: 'Pinchoria', kind: 'village', left: 80, top: 55 },
+      { label: 'Zone Zero', kind: 'landmark', left: 49, top: 46 },
+    ],
+  },
+];
+
+export function getLocationAtlasRegion(regionKey: string) {
+  return locationAtlasRegions.find((region) => region.key === regionKey) ?? locationAtlasRegions[0];
+}

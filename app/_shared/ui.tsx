@@ -406,7 +406,6 @@ const styles = StyleSheet.create({
     bottom: -12,
   },
   discoverCard: {
-    width: '47.5%',
   },
   discoverCardGradient: {
     height: 214,
