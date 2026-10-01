@@ -1,0 +1,12 @@
+import './discover-search.test.mjs';
+import './evolution-context.test.mjs';
+import './atlas-context.test.mjs';
+import './game-coverage.test.mjs';
+import './routes.test.mjs';
+import './specimens.test.mjs';
+import './collection-backup.test.mjs';
+import './planning.test.mjs';
+import './comparison-analysis.test.mjs';
+import './team-analysis.test.mjs';
+import './shiny-hunts.test.mjs';
+import './persisted-state-updates.test.mjs';
