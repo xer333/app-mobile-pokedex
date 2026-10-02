@@ -15,6 +15,7 @@ type PersistedStateResult<T> = {
   state: T;
   setState: Dispatch<SetStateAction<T>>;
   isReady: boolean;
+  isSynced: boolean;
   persistenceStatus: PersistenceStatus;
   persistenceError: string | null;
   retryPersistence: () => void;
@@ -30,6 +31,7 @@ export function usePersistedState<T>(
   const [persistenceStatus, setPersistenceStatus] =
     useState<PersistenceStatus>('loading');
   const [persistenceError, setPersistenceError] = useState<string | null>(null);
+  const [lastSavedSerialized, setLastSavedSerialized] = useState<string | null>(null);
   const [readRetryToken, setReadRetryToken] = useState(0);
   const [writeRetryToken, setWriteRetryToken] = useState(0);
   const skipInitialWrite = useRef(true);
@@ -59,6 +61,7 @@ export function usePersistedState<T>(
         }
 
         const restored = rawValue ? deserializeRef.current(rawValue) : initialStateRef.current;
+        setLastSavedSerialized(JSON.stringify(restored));
         const updates = pendingUpdates.current;
         pendingUpdates.current = [];
         skipInitialWrite.current = updates.length === 0;
@@ -106,6 +109,7 @@ export function usePersistedState<T>(
       .then(() => AsyncStorage.setItem(storageKey, serialized));
     writeQueue.current
       .then(() => {
+        setLastSavedSerialized(serialized);
         if (writeRevision.current === revision) {
           setPersistenceStatus('saved');
         }
@@ -133,6 +137,7 @@ export function usePersistedState<T>(
     state,
     setState,
     isReady,
+    isSynced: isReady && persistenceStatus !== 'error' && lastSavedSerialized === JSON.stringify(state),
     persistenceStatus,
     persistenceError,
     retryPersistence,

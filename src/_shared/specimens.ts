@@ -6,8 +6,16 @@ export type PokemonSpecimen = {
   formSlug: string;
   shiny: boolean;
   gameId: string;
+  saveId?: string | null;
   obtainedAt: number;
   origin: PokemonSpecimenOrigin;
+  nickname?: string;
+  boxName?: string;
+  boxSlot?: number;
+  ball?: string;
+  language?: string;
+  obtainedPlace?: string;
+  notes?: string;
 };
 
 export type NewPokemonSpecimen = Omit<PokemonSpecimen, 'id' | 'obtainedAt'>;
@@ -40,8 +48,23 @@ export function isPokemonSpecimen(value: unknown): value is PokemonSpecimen {
     typeof specimen.shiny === 'boolean' &&
     typeof specimen.gameId === 'string' &&
     specimen.gameId.length > 0 &&
+    (specimen.saveId === undefined || specimen.saveId === null
+      || (typeof specimen.saveId === 'string' && specimen.saveId.length > 0)) &&
     typeof specimen.obtainedAt === 'number' &&
     Number.isFinite(specimen.obtainedAt) &&
-    ['unspecified', 'captured', 'received', 'traded'].includes(specimen.origin ?? '')
+    ['unspecified', 'captured', 'received', 'traded'].includes(specimen.origin ?? '') &&
+    isOptionalString(specimen.nickname) &&
+    isOptionalString(specimen.boxName) &&
+    (specimen.boxSlot === undefined || (
+      Number.isInteger(specimen.boxSlot) && specimen.boxSlot >= 1
+    )) &&
+    isOptionalString(specimen.ball) &&
+    isOptionalString(specimen.language) &&
+    isOptionalString(specimen.obtainedPlace) &&
+    isOptionalString(specimen.notes)
   );
+}
+
+function isOptionalString(value: unknown): value is string | undefined {
+  return value === undefined || typeof value === 'string';
 }

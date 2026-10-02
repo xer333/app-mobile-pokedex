@@ -7,15 +7,19 @@ import { ActivityProvider } from '../src/_shared/activity';
 import { CollectionsProvider } from '../src/_shared/collections';
 import { PlanningProvider } from '../src/_shared/planning-provider';
 import { ShinyHuntsProvider } from '../src/_shared/shiny-hunts-provider';
+import { HuntFoundCoordinator } from '../src/_shared/hunt-found-coordinator';
+import { RestoreBootstrap } from '../src/_shared/restore-bootstrap';
 
 export default function RootLayout() {
   return (
+    <RestoreBootstrap>
     <AccountProvider>
       <AdventureProvider>
         <ActivityProvider>
           <CollectionsProvider>
             <PlanningProvider>
               <ShinyHuntsProvider>
+              <HuntFoundCoordinator>
               <StatusBar style="light" />
               <Stack
               screenOptions={({ route }) => {
@@ -27,7 +31,7 @@ export default function RootLayout() {
                 routeName === 'moves' ||
                 routeName === 'evolutions' ||
                   routeName === 'profile';
-                const isWorkspaceSurface = routeName === 'collection' || routeName === 'planner' || routeName === 'hunts';
+                const isWorkspaceSurface = routeName === 'collection' || routeName === 'registered' || routeName === 'projects' || routeName === 'planner' || routeName === 'hunts';
 
               return {
                 headerShown: false,
@@ -44,11 +48,13 @@ export default function RootLayout() {
               };
               }}
               />
+              </HuntFoundCoordinator>
               </ShinyHuntsProvider>
             </PlanningProvider>
           </CollectionsProvider>
         </ActivityProvider>
       </AdventureProvider>
     </AccountProvider>
+    </RestoreBootstrap>
   );
 }

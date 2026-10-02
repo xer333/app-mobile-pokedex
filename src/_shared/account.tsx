@@ -6,6 +6,7 @@ import {
 } from 'react';
 
 import { usePersistedState, type PersistenceStatus } from './use-persisted-state';
+import { backupStorageKeys } from './backup-storage-keys';
 
 export type AccountProfile = {
   firstName: string;
@@ -15,6 +16,7 @@ export type AccountProfile = {
 
 type AccountContextValue = {
   isReady: boolean;
+  isSynced: boolean;
   profile: AccountProfile;
   displayName: string;
   initials: string;
@@ -25,7 +27,7 @@ type AccountContextValue = {
   resetProfile: () => void;
 };
 
-const STORAGE_KEY = 'pokedex.account.v1';
+const STORAGE_KEY = backupStorageKeys.profile;
 
 const defaultProfile: AccountProfile = {
   firstName: 'Stanly',
@@ -40,6 +42,7 @@ export function AccountProvider({ children }: { children: ReactNode }) {
     state: profile,
     setState: setProfile,
     isReady,
+    isSynced,
     persistenceStatus,
     persistenceError,
     retryPersistence,
@@ -51,6 +54,7 @@ export function AccountProvider({ children }: { children: ReactNode }) {
 
     return {
       isReady,
+      isSynced,
       profile,
       displayName,
       initials,
@@ -70,6 +74,7 @@ export function AccountProvider({ children }: { children: ReactNode }) {
     };
   }, [
     isReady,
+    isSynced,
     persistenceError,
     persistenceStatus,
     profile,

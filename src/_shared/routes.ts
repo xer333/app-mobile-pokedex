@@ -7,6 +7,8 @@ export const appRoutes = {
   evolutions: '/evolutions' as const,
   profile: '/profile' as const,
   collection: '/collection' as const,
+  registered: '/registered' as const,
+  projects: '/projects' as const,
   planner: '/planner' as const,
   hunts: '/hunts' as const,
 };

@@ -18,16 +18,20 @@ const constraintOptions: Array<{ key: GoalConstraint; label: string }> = [
 
 export function PlannerScene() {
   const router = useRouter();
-  const { activeGame } = useAdventure();
+  const { activeGame, activeSave, activeSaveId, saves } = useAdventure();
   const planning = usePlanning();
   const [goalTitle, setGoalTitle] = useState('');
   const [drafts, setDrafts] = useState<Record<string, { label: string; resource: string }>>({});
-  const conflicts = useMemo(() => findResourceConflicts(planning.goals), [planning.goals]);
+  const [scope, setScope] = useState<'active' | 'unassigned' | 'all'>('active');
+  const visibleGoals = useMemo(() => planning.goals.filter((goal) =>
+    scope === 'all' || (scope === 'unassigned' ? !goal.saveId : goal.saveId === activeSaveId)),
+  [activeSaveId, planning.goals, scope]);
+  const conflicts = useMemo(() => findResourceConflicts(visibleGoals), [visibleGoals]);
 
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
       <FlatList
-        data={planning.goals}
+        data={visibleGoals}
         keyExtractor={(goal) => goal.id}
         contentContainerStyle={styles.content}
         ListHeaderComponent={
@@ -43,6 +47,22 @@ export function PlannerScene() {
               Les tâches sont tes déclarations. L’application signale les conflits mais ne prétend
               pas calculer un chemin optimal sans données vérifiées.
             </Text>
+            <View style={styles.chips}>
+              {([
+                ['active', activeSave.name],
+                ['unassigned', 'Sans partie'],
+                ['all', 'Tous'],
+              ] as const).map(([key, label]) => (
+                <Pressable
+                  key={key}
+                  accessibilityRole="button"
+                  onPress={() => setScope(key)}
+                  style={[styles.chip, scope === key && styles.chipActive]}
+                >
+                  <Text style={[styles.chipText, scope === key && styles.chipTextActive]}>{label}</Text>
+                </Pressable>
+              ))}
+            </View>
             <View style={styles.composer}>
               <TextInput
                 value={goalTitle}
@@ -57,7 +77,7 @@ export function PlannerScene() {
                 }}
                 style={styles.button}
               >
-                <Text style={styles.buttonText}>Créer pour {activeGame.shortLabel}</Text>
+                <Text style={styles.buttonText}>Créer pour {activeSave.name}</Text>
               </Pressable>
             </View>
             {conflicts.length > 0 ? (
@@ -81,11 +101,30 @@ export function PlannerScene() {
                 <View style={styles.goalCopy}>
                   <Text style={styles.goalTitle}>{goal.title}</Text>
                   <Text style={styles.goalMeta}>
-                    {progress.done}/{progress.total} tâches · contexte {goal.gameId}
+                    {progress.done}/{progress.total} tâches · {saves.find((save) => save.id === goal.saveId)?.name ?? 'sans partie'} · {goal.gameId}
                   </Text>
                 </View>
                 <Pressable onPress={() => planning.removeGoal(goal.id)}>
                   <Text style={styles.removeText}>Supprimer</Text>
+                </Pressable>
+              </View>
+              <View style={styles.chips}>
+                {saves.filter((save) => save.gameId === goal.gameId).map((save) => (
+                  <Pressable
+                    key={save.id}
+                    accessibilityRole="button"
+                    onPress={() => planning.assignGoalToSave(goal.id, save.id)}
+                    style={[styles.chip, goal.saveId === save.id && styles.chipActive]}
+                  >
+                    <Text style={[styles.chipText, goal.saveId === save.id && styles.chipTextActive]}>{save.name}</Text>
+                  </Pressable>
+                ))}
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() => planning.assignGoalToSave(goal.id, null)}
+                  style={[styles.chip, !goal.saveId && styles.chipActive]}
+                >
+                  <Text style={[styles.chipText, !goal.saveId && styles.chipTextActive]}>Sans partie</Text>
                 </Pressable>
               </View>
               <View style={styles.progressTrack}>
@@ -156,7 +195,11 @@ export function PlannerScene() {
         }}
         ListEmptyComponent={
           <View style={styles.empty}>
-            <Text style={styles.emptyText}>Crée un objectif, ajoute ses tâches puis précise tes contraintes.</Text>
+            <Text style={styles.emptyText}>
+              {planning.goals.length === 0
+                ? 'Crée un objectif, ajoute ses tâches puis précise tes contraintes.'
+                : 'Aucun objectif dans ce filtre. Choisis une autre partie ou « Tous ». '}
+            </Text>
           </View>
         }
       />

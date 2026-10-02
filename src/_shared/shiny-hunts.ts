@@ -15,6 +15,7 @@ export type ShinyHunt = {
   id: string;
   targetSlug: string;
   gameId: string;
+  saveId?: string | null;
   status: ShinyHuntStatus;
   createdAt: number;
   foundAt: number | null;
@@ -30,11 +31,13 @@ export function createShinyHunt(
   method = 'Rencontres',
   odds: number | null = null,
   now = Date.now(),
+  saveId?: string,
 ): ShinyHunt {
   return {
     id: `hunt-${now}-${Math.random().toString(36).slice(2, 8)}`,
     targetSlug,
     gameId,
+    ...(saveId !== undefined ? { saveId } : {}),
     status: 'active',
     createdAt: now,
     foundAt: null,
@@ -142,6 +145,8 @@ export function isShinyHunt(value: unknown): value is ShinyHunt {
     typeof hunt.id === 'string' &&
     typeof hunt.targetSlug === 'string' &&
     typeof hunt.gameId === 'string' &&
+    (hunt.saveId === undefined || hunt.saveId === null
+      || (typeof hunt.saveId === 'string' && hunt.saveId.length > 0)) &&
     ['active', 'paused', 'found'].includes(hunt.status ?? '') &&
     typeof hunt.createdAt === 'number' &&
     (hunt.foundAt === null || typeof hunt.foundAt === 'number') &&

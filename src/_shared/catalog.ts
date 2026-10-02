@@ -72,6 +72,7 @@ const regionFilters = buildRegionFilters(catalog.items);
 
 export const pokemonCatalog = catalog.items;
 export const pokemonCatalogCount = catalog.count;
+export const pokemonCatalogGeneratedAt = catalog.generatedAt;
 export const pokemonTypeFilters = typeFilters;
 export const pokemonGenerationFilters = generationFilters;
 export const pokemonRegionFilters = regionFilters;

@@ -72,7 +72,7 @@ function PokemonDetailScene({
   requestedSlug: string;
 }) {
   const router = useRouter();
-  const { activeGame } = useAdventure();
+  const { activeGame, activeSave, isReady: adventureReady, isRegistered, toggleRegistered } = useAdventure();
   const { addGoal, addTask } = usePlanning();
   const [activeTab, setActiveTab] = useState<DetailTabId>(initialTab);
   const [showShiny, setShowShiny] = useState(false);
@@ -92,6 +92,7 @@ function PokemonDetailScene({
     setComparisonTarget,
     replaceTeamMember,
     persistenceError,
+    isReady: collectionsReady,
     retryPersistence,
     removeSpecimen,
     toggleFavorite,
@@ -133,6 +134,7 @@ function PokemonDetailScene({
   const collectionSlug = pokemon.speciesSlug;
   const favorite = isFavorite(collectionSlug);
   const inTeam = isInTeam(collectionSlug);
+  const registered = isRegistered(collectionSlug);
   const teamIsFull = team.length >= teamLimit;
   const comparisonIsArmed = comparisonTarget === collectionSlug;
   const comparisonReady = Boolean(comparisonTarget && comparisonTarget !== collectionSlug);
@@ -272,9 +274,21 @@ function PokemonDetailScene({
                       />
 
                       <ActionButton
+                        active={registered}
+                        disabled={!adventureReady}
+                        label={!adventureReady ? 'Chargement du Pokédex…' : registered
+                          ? `Enregistré dans ${activeSave.name}`
+                          : `Marquer enregistré dans ${activeSave.name}`}
+                        onPress={() => toggleRegistered(collectionSlug)}
+                      />
+
+                      <ActionButton
                         active={inTeam}
+                        disabled={!adventureReady || !collectionsReady}
                         label={
-                          inTeam
+                          !adventureReady || !collectionsReady
+                            ? 'Chargement de l’équipe…'
+                            : inTeam
                             ? `Dans l'equipe (${team.length}/${teamLimit})`
                             : teamIsFull
                               ? `Equipe pleine (${team.length}/${teamLimit})`
@@ -520,17 +534,20 @@ function DetailTabContent({
 
 function ActionButton({
   active,
+  disabled,
   label,
   onPress,
 }: {
   active?: boolean;
+  disabled?: boolean;
   label: string;
   onPress: () => void;
 }) {
   return (
     <Pressable
+      disabled={disabled}
       onPress={onPress}
-      style={[styles.actionButton, active && styles.actionButtonActive]}
+      style={[styles.actionButton, active && styles.actionButtonActive, disabled && { opacity: 0.4 }]}
     >
       <Text style={styles.actionButtonText}>{label}</Text>
     </Pressable>

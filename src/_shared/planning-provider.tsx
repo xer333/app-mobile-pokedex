@@ -1,6 +1,9 @@
-import { createContext, useCallback, useContext, useMemo, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, type ReactNode } from 'react';
 
 import { usePersistedState, type PersistenceStatus } from './use-persisted-state';
+import { useAdventure } from './adventure';
+import { isCompatibleSave, migrateRecordsToSaves } from './record-save';
+import { backupStorageKeys } from './backup-storage-keys';
 import {
   createPlanTask,
   createPlayerGoal,
@@ -12,6 +15,7 @@ import {
 type PlanningState = { goals: PlayerGoal[] };
 type PlanningContextValue = PlanningState & {
   isReady: boolean;
+  isSynced: boolean;
   persistenceStatus: PersistenceStatus;
   persistenceError: string | null;
   retryPersistence: () => void;
@@ -21,14 +25,17 @@ type PlanningContextValue = PlanningState & {
   addTask: (goalId: string, label: string, resourceKey: string | null) => void;
   toggleTask: (goalId: string, taskId: string) => void;
   removeTask: (goalId: string, taskId: string) => void;
+  replaceGoals: (goals: PlayerGoal[]) => void;
+  assignGoalToSave: (goalId: string, saveId: string | null) => void;
 };
 
 const PlanningContext = createContext<PlanningContextValue | null>(null);
 const defaultState: PlanningState = { goals: [] };
 
 export function PlanningProvider({ children }: { children: ReactNode }) {
+  const adventure = useAdventure();
   const persistence = usePersistedState(
-    'pokedex.planning.v1',
+    backupStorageKeys.planning,
     defaultState,
     (rawValue) => {
       const parsed = JSON.parse(rawValue) as Partial<PlanningState>;
@@ -36,12 +43,30 @@ export function PlanningProvider({ children }: { children: ReactNode }) {
     },
   );
 
+  useEffect(() => {
+    if (!persistence.isReady || !adventure.isReady) return;
+    persistence.setState((current) => {
+      const goals = migrateRecordsToSaves(current.goals, adventure.saves);
+      return goals === current.goals ? current : { ...current, goals };
+    });
+  }, [adventure.isReady, adventure.saves, persistence.isReady, persistence.setState]);
+
   const addGoal = useCallback((title: string, gameId: string) => {
     if (!title.trim()) return null;
-    const goal = createPlayerGoal(title, gameId);
+    const goal = createPlayerGoal(title, gameId, Date.now(),
+      gameId === adventure.activeGameId ? adventure.activeSaveId : undefined);
     persistence.setState((current) => ({ ...current, goals: [...current.goals, goal] }));
     return goal.id;
-  }, [persistence.setState]);
+  }, [adventure.activeGameId, adventure.activeSaveId, persistence.setState]);
+
+  const assignGoalToSave = useCallback((goalId: string, saveId: string | null) => {
+    persistence.setState((current) => ({
+      ...current,
+      goals: current.goals.map((goal) => goal.id === goalId
+        && isCompatibleSave(saveId, goal.gameId, adventure.saves)
+        ? { ...goal, saveId } : goal),
+    }));
+  }, [adventure.saves, persistence.setState]);
 
   const removeGoal = useCallback((goalId: string) => {
     persistence.setState((current) => ({
@@ -107,6 +132,7 @@ export function PlanningProvider({ children }: { children: ReactNode }) {
   const value = useMemo<PlanningContextValue>(() => ({
     ...persistence.state,
     isReady: persistence.isReady,
+    isSynced: persistence.isSynced,
     persistenceStatus: persistence.persistenceStatus,
     persistenceError: persistence.persistenceError,
     retryPersistence: persistence.retryPersistence,
@@ -116,7 +142,9 @@ export function PlanningProvider({ children }: { children: ReactNode }) {
     addTask,
     toggleTask,
     removeTask,
-  }), [addGoal, addTask, persistence.isReady, persistence.persistenceError, persistence.persistenceStatus, persistence.retryPersistence, persistence.state, removeGoal, removeTask, toggleConstraint, toggleTask]);
+    replaceGoals: (goals) => persistence.setState({ goals }),
+    assignGoalToSave,
+  }), [addGoal, addTask, assignGoalToSave, persistence.isReady, persistence.isSynced, persistence.persistenceError, persistence.persistenceStatus, persistence.retryPersistence, persistence.setState, persistence.state, removeGoal, removeTask, toggleConstraint, toggleTask]);
 
   return <PlanningContext.Provider value={value}>{children}</PlanningContext.Provider>;
 }

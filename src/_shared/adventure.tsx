@@ -1,6 +1,20 @@
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
 
 import { usePersistedState, type PersistenceStatus } from './use-persisted-state';
+import {
+  createAdventureSave,
+  createLegacyAdventure,
+  activateAdventureGame,
+  activateAdventureSave,
+  archiveAdventureSave,
+  parseAdventureState,
+  restoreAdventureSave,
+  type AdventureSave,
+  type AdventureState,
+} from './adventure-saves';
+import { mergeRegisteredSlugs } from './registered-dex';
+import { backupStorageKeys } from './backup-storage-keys';
+export type { AdventureSave, AdventureState } from './adventure-saves';
 
 export type GameCoverage = 'reference' | 'partial';
 
@@ -14,17 +28,26 @@ export type GameOption = {
   coverage: GameCoverage;
 };
 
-type AdventureState = {
-  activeGameId: string;
-};
-
 type AdventureContextValue = AdventureState & {
   activeGame: GameOption;
+  activeSave: AdventureSave;
   isReady: boolean;
+  isSynced: boolean;
   persistenceStatus: PersistenceStatus;
   persistenceError: string | null;
   retryPersistence: () => void;
   setActiveGame: (gameId: string) => void;
+  setActiveSave: (saveId: string) => void;
+  addSave: (gameId: string, name: string) => string;
+  archiveSave: (saveId: string) => void;
+  restoreSave: (saveId: string) => void;
+  renameSave: (saveId: string, name: string) => void;
+  setSaveRules: (saveId: string, rules: AdventureSave['rules']) => void;
+  setSaveDlcIds: (saveId: string, dlcIds: string[]) => void;
+  isRegistered: (slug: string) => boolean;
+  toggleRegistered: (slug: string) => void;
+  registerSlugs: (saveId: string, slugs: string[]) => void;
+  replaceAdventure: (nextState: AdventureState) => void;
 };
 
 export const gameOptions: GameOption[] = [
@@ -42,8 +65,8 @@ export const gameOptions: GameOption[] = [
   { id: 'ultra-moon', label: 'Pokémon Ultra-Lune', shortLabel: 'Ultra-Lune', versionGroup: 'ultra-sun-ultra-moon', versionSlug: 'ultra-moon', region: 'alola', coverage: 'partial' },
 ];
 
-const STORAGE_KEY = 'pokedex.adventure.v1';
-const defaultState: AdventureState = { activeGameId: 'national' };
+const STORAGE_KEY = backupStorageKeys.adventure;
+const defaultState: AdventureState = createLegacyAdventure('national');
 const AdventureContext = createContext<AdventureContextValue | null>(null);
 
 export function AdventureProvider({ children }: { children: ReactNode }) {
@@ -51,27 +74,91 @@ export function AdventureProvider({ children }: { children: ReactNode }) {
     state,
     setState,
     isReady,
+    isSynced,
     persistenceStatus,
     persistenceError,
     retryPersistence,
   } = usePersistedState(STORAGE_KEY, defaultState, parseAdventureState);
   const activeGame = getGameOption(state.activeGameId);
+  const activeSave = state.saves.find((save) => save.id === state.activeSaveId) ?? state.saves[0];
 
   const value = useMemo<AdventureContextValue>(
     () => ({
       ...state,
       activeGame,
+      activeSave,
       isReady,
+      isSynced,
       persistenceStatus,
       persistenceError,
       retryPersistence,
       setActiveGame: (gameId) => {
-        setState({ activeGameId: getGameOption(gameId).id });
+        const normalizedGameId = getGameOption(gameId).id;
+        setState((current) => activateAdventureGame(current, normalizedGameId));
       },
+      setActiveSave: (saveId) => {
+        setState((current) => activateAdventureSave(current, saveId));
+      },
+      addSave: (gameId, name) => {
+        const save = createAdventureSave(getGameOption(gameId).id, name);
+        setState((current) => ({
+          activeGameId: save.gameId,
+          activeSaveId: save.id,
+          saves: [...current.saves, save],
+        }));
+        return save.id;
+      },
+      archiveSave: (saveId) => setState((current) => archiveAdventureSave(current, saveId)),
+      restoreSave: (saveId) => setState((current) => restoreAdventureSave(current, saveId)),
+      renameSave: (saveId, name) => {
+        if (!name.trim()) return;
+        setState((current) => ({
+          ...current,
+          saves: current.saves.map((save) => save.id === saveId
+            ? { ...save, name: name.trim() } : save),
+        }));
+      },
+      setSaveRules: (saveId, rules) => {
+        setState((current) => ({
+          ...current,
+          saves: current.saves.map((save) => save.id === saveId
+            ? { ...save, rules } : save),
+        }));
+      },
+      setSaveDlcIds: (saveId, dlcIds) => {
+        setState((current) => ({
+          ...current,
+          saves: current.saves.map((save) => save.id === saveId
+            ? { ...save, dlcIds: [...new Set(dlcIds)] } : save),
+        }));
+      },
+      isRegistered: (slug) => activeSave.registeredSlugs.includes(slug),
+      toggleRegistered: (slug) => {
+        setState((current) => ({
+          ...current,
+          saves: current.saves.map((save) => save.id === current.activeSaveId
+            ? { ...save, registeredSlugs: save.registeredSlugs.includes(slug)
+              ? save.registeredSlugs.filter((entry) => entry !== slug)
+              : [...save.registeredSlugs, slug] }
+            : save),
+        }));
+      },
+      registerSlugs: (saveId, slugs) => {
+        if (!slugs.length) return;
+        setState((current) => ({
+          ...current,
+          saves: current.saves.map((save) => save.id === saveId
+            ? { ...save, registeredSlugs: mergeRegisteredSlugs(save.registeredSlugs, slugs) }
+            : save),
+        }));
+      },
+      replaceAdventure: (nextState) => setState(parseAdventureState(JSON.stringify(nextState))),
     }),
     [
       activeGame,
+      activeSave,
       isReady,
+      isSynced,
       persistenceError,
       persistenceStatus,
       retryPersistence,
@@ -93,14 +180,4 @@ export function useAdventure() {
 
 export function getGameOption(gameId: string) {
   return gameOptions.find((game) => game.id === gameId) ?? gameOptions[0];
-}
-
-function parseAdventureState(rawValue: string): AdventureState {
-  const parsed = JSON.parse(rawValue) as Partial<AdventureState>;
-  return {
-    activeGameId:
-      typeof parsed.activeGameId === 'string'
-        ? getGameOption(parsed.activeGameId).id
-        : defaultState.activeGameId,
-  };
 }

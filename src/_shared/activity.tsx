@@ -7,8 +7,9 @@ import {
 } from 'react';
 
 import { usePersistedState, type PersistenceStatus } from './use-persisted-state';
+import { backupStorageKeys } from './backup-storage-keys';
 
-type ActivityState = {
+export type ActivityState = {
   lastRoute: string | null;
   lastLabel: string | null;
   lastPokemonSlug: string | null;
@@ -24,13 +25,15 @@ type RecordActivityInput = {
 
 type ActivityContextValue = ActivityState & {
   isReady: boolean;
+  isSynced: boolean;
   persistenceStatus: PersistenceStatus;
   persistenceError: string | null;
   retryPersistence: () => void;
   recordActivity: (input: RecordActivityInput) => void;
+  replaceActivity: (nextState: ActivityState) => void;
 };
 
-const STORAGE_KEY = 'pokedex.activity.v1';
+const STORAGE_KEY = backupStorageKeys.activity;
 const RECENT_POKEMON_LIMIT = 8;
 
 const defaultState: ActivityState = {
@@ -48,6 +51,7 @@ export function ActivityProvider({ children }: { children: ReactNode }) {
     state,
     setState,
     isReady,
+    isSynced,
     persistenceStatus,
     persistenceError,
     retryPersistence,
@@ -77,16 +81,20 @@ export function ActivityProvider({ children }: { children: ReactNode }) {
     () => ({
       ...state,
       isReady,
+      isSynced,
       persistenceStatus,
       persistenceError,
       retryPersistence,
       recordActivity,
+      replaceActivity: (nextState) => setState(nextState),
     }),
     [
       isReady,
+      isSynced,
       persistenceError,
       persistenceStatus,
       recordActivity,
+      setState,
       retryPersistence,
       state,
     ],

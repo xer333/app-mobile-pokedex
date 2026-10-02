@@ -13,16 +13,18 @@ export type PlayerGoal = {
   id: string;
   title: string;
   gameId: string;
+  saveId?: string | null;
   createdAt: number;
   constraints: GoalConstraint[];
   tasks: PlanTask[];
 };
 
-export function createPlayerGoal(title: string, gameId: string, now = Date.now()): PlayerGoal {
+export function createPlayerGoal(title: string, gameId: string, now = Date.now(), saveId?: string): PlayerGoal {
   return {
     id: `goal-${now}-${Math.random().toString(36).slice(2, 8)}`,
     title: title.trim(),
     gameId,
+    ...(saveId !== undefined ? { saveId } : {}),
     createdAt: now,
     constraints: [],
     tasks: [],
@@ -75,6 +77,8 @@ export function isPlayerGoal(value: unknown): value is PlayerGoal {
     typeof goal.id === 'string' &&
     typeof goal.title === 'string' &&
     typeof goal.gameId === 'string' &&
+    (goal.saveId === undefined || goal.saveId === null
+      || (typeof goal.saveId === 'string' && goal.saveId.length > 0)) &&
     typeof goal.createdAt === 'number' &&
     Array.isArray(goal.constraints) &&
     goal.constraints.every((constraint) =>

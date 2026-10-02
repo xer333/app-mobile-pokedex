@@ -27,7 +27,9 @@ import { useCollections } from '../_shared/collections';
 import { getGameCoverage } from '../_shared/game-coverage';
 import { usePlanning } from '../_shared/planning-provider';
 import { useShinyHunts } from '../_shared/shiny-hunts-provider';
+import { BackupSection } from './backup-section';
 import { styles } from './styles';
+import { SaveManager } from './save-manager';
 
 type FieldConfig = {
   key: string;
@@ -76,7 +78,7 @@ export function ProfileScene() {
     persistenceErrors[0] ??
     (isSaving
       ? 'Sauvegarde locale en cours…'
-      : 'Profil, exemplaires, favoris, équipe et activité sont enregistrés uniquement sur cet appareil.');
+      : 'Profil, collection, objectifs, chasses et activité sont enregistrés uniquement sur cet appareil.');
 
   const fields: FieldConfig[] = [
     {
@@ -201,6 +203,8 @@ export function ProfileScene() {
                 })}
               </ScrollView>
 
+              <SaveManager />
+
               <View style={styles.gameContextCard}>
                 <Text style={styles.noteTitle}>{adventure.activeGame.label}</Text>
                 <Text style={styles.noteText}>
@@ -273,6 +277,8 @@ export function ProfileScene() {
                   </Pressable>
                 ) : null}
               </View>
+
+              <BackupSection />
 
               <View style={styles.actionRow}>
                 <Pressable onPress={handleReset} style={styles.secondaryButton}>
